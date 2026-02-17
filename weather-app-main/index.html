@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="main.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div class="big-container">
+
+  <header>
+    <div class="header">
+      
+      <img class="logo" src="assets/images/logo.svg" alt="logo">
+      <div class="rightheader">
+
+      <!-- <button class="langBtn" id="langBtn">FA / EN</button> -->
+      
+      <div class="unit-dropdown">
+        <button id="unitbtn" class="unit-btn">
+        <img src="assets/images/icon-units.svg" alt="">
+        Units
+        <img src="assets/images/icon-dropdown.svg" alt="">
+        </button>
+<div class="menu" id="unitmenu">
+<div class="group">
+  <div class="title">temperature</div>
+    <div class="item" data-type="temp" data-value="c">Celsuis <span class="check"></span></div>
+    <div class="item" data-type="temp" data-value="f">Fahrenheit <span class="check"></span></div>
+  </div>
+  <div class="group">
+  <div class="title">Wind Speed</div>
+    <div class="item" data-type="wind" data-value="kmh">kmh <span class="check"></span></div>
+    <div class="item" data-type="wind" data-value="mph">mph <span class="check"></span></div>
+  </div>
+  <div class="group">
+  <div class="title">Precipitation</div>
+    <div class="item" data-type="rain" data-value="mm">Millimeters <span class="check"></span></div>
+    <div class="item" data-type="rain" data-value="in">Inches <span class="check"></span></div>
+  </div>
+</div>
+
+</div>
+  </div>
+</header>
+
+
+<div class="err hidden" id="err">
+  <img src="assets/images/icon-error.svg" >
+  
+<p class="big-font">Something went wrong</p>
+<p class="small-font">We couldn't connect to the server (API error). Please try again in a few moments.</p>
+<button><img src="assets/images/icon-retry.svg">
+  Retry
+</button>
+</div>
+
+
+<div class="err-container hidden" id="err-container">
+<h1 class="greeting">How's the sky looking today?</h1>
+
+
+<div class="container">
+<div class="searchbar">
+
+<img src="assets/images/icon-search.svg" type="image" class="search-icon">
+ <input type="text" placeholder="Search for a place..." class="search-txt" id="search-txt">
+</div>
+<button class="search-btn" id="search-btn"> Search </button>
+</div>
+
+<div id="no-result" class="no-result hidden">
+<h2>No search results found!</h2>
+</div>
+
+
+<div class="weatherContainer hidden" id="weather-container">
+
+  <div class="img-container">
+  <img class="today-bg" src="assets/images/bg-today-large.svg">
+
+  <!-- LOADER -->
+  <div class="load-wrapp hidden" id="loading-box">
+    <div class="load-2">
+      <div class="line"></div>
+      <div class="line"></div>
+      <div class="line"></div>
+    </div>
+  </div>
+
+  <!-- NOTE -->
+  <div class="note hidden">
+    <div class="left">
+      <h2 id="city"></h2>
+      <p id="date"></p>
+    </div>
+
+    <div class="right">
+      <img id="weatherIcon" src="" class="weatherIcon">
+      <h3 id="temp"></h3>
+    </div>
+  </div>
+</div>
+
+ 
+  <div class="hourly">
+  </div>
+
+</div>
+
+</div>
+</div>
+
+
+<script src="main.js">
+  
+</script>
+</body>
+</html>
