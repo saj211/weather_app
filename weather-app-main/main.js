@@ -5,6 +5,9 @@ const texts = {
   loadingCity: "Loading city..."
 };
 
+//handle the day drp-down menu
+const dayMenu= document.querySelector("#dayMenu");
+
 //search consts
 const search = document.querySelector("#search-btn");
 const cityInput = document.querySelector("#search-txt");
@@ -46,6 +49,7 @@ function showEnglishDate() {
   };
   document.getElementById("date").textContent =
     now.toLocaleDateString("en-US", options);
+
 }
 
 // initial UI text helper func
@@ -55,8 +59,10 @@ function applyText() {
     texts.greeting,
     50
   );
+
   document.querySelector("#search-btn").textContent = texts.search;
   showEnglishDate();
+  
 }
 
 // get lat lon helper func
@@ -81,23 +87,6 @@ async function getCity(lat, lon) {
   return `${data.city || data.locality || data.principalSubdivision || "Unknown City"}, ${data.countryName}`;
 }
 
-// get weather helper func
-async function getWeather(lat, lon) {
-  try {
-    const url =
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,weathercode`;
-
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("API down");
-
-    const data = await res.json();
-    return data.current;
-
-  } catch (err) {
-    return null;
-  }
-}
-
 // get weather icon helper func
 function getWeatherIcon(code) {
   if (code === 0 || code === 1) return "assets/images/icon-sunny.webp";
@@ -109,6 +98,8 @@ function getWeatherIcon(code) {
   else if (code >= 95) return "assets/images/icon-storm.webp";
   return "assets/images/icon-sunny.webp";
 }
+
+
 
 // loader helper funcs
 function showLoading() {
@@ -133,12 +124,13 @@ function hideErr() {
 
 //search for city helper func
 function showNoResultPage() {
-  document.getElementById("weather-container").classList.add("hidden");
+  document.getElementById("weatherContainer").classList.add("hidden");
   document.getElementById("no-result").classList.remove("hidden");
 }
 
 function showWeatherPage() {
-  document.getElementById("weather-container").classList.remove("hidden");
+  
+  document.getElementById("weatherContainer").classList.remove("hidden");
   document.getElementById("no-result").classList.add("hidden");
 }
 
@@ -156,6 +148,122 @@ async function searchCity(city) {
   return data.results;
 }
 
+async function getWeather(lat, lon) {
+const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,apparent_temperature,relative_humidity_2m,precipitation,weathercode&hourly=temperature_2m,weathercode,apparent_temperature,relative_humidity_2m,precipitation&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`;    const res = await fetch(url);
+    if (!res.ok) throw new Error("API failed");
+    const data = await res.json();
+    if (!data.current) return;
+
+  try {
+
+//for the bg today
+    //  
+
+//for the four boex below the bg today
+    document.getElementById("feelslike").textContent =
+      `${data.current.apparent_temperature}°C`;
+
+    document.getElementById("humidity").textContent =
+      `${data.current.relative_humidity_2m}%`;
+
+    document.getElementById("wind").textContent =
+      `${data.current.wind_speed_10m} km/h`;
+
+    document.getElementById("precipitation").textContent =
+      `${data.current.precipitation} mm`;
+
+
+//for the daily forecast
+
+for (let i = 0; i < 7 ; i++) {
+    const dataStr= data.daily.time[i];
+    const code= data.daily.weathercode[i];
+    const max = data.daily.temperature_2m_max[i];
+    const min = data.daily.temperature_2m_min[i];
+
+    const dayName = new Date(dataStr).toLocaleDateString("en-US", {weekday : "short"});
+    const icon = getWeatherIcon(code);
+    const minnimum = document.getElementById("min" + (i+1));
+    const maximum = document.getElementById("max" + (i+1));
+    const dayDiv = document.getElementById("day" + (i+1));
+    const iconDiv = document.getElementById("daily-icon" + (i + 1));
+
+    if (iconDiv && dayDiv && minnimum && maximum) {
+      iconDiv.src = icon;
+      dayDiv.textContent = dayName;
+      maximum.textContent = max + "°";
+      minnimum.textContent = min + "°";
+    };}
+
+
+return data.current;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+//handle the day column
+
+dayMenu.addEventListener("change", (e) => {
+  handleDay(e.target.value);
+});
+
+async function handleDay(selectedDay) {
+  const position = await getLocation();
+  const lat = position.coords.latitude;
+  const lon = position.coords.longitude;
+
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode&timezone=auto`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  if (!data.hourly) return;
+
+  const times = data.hourly.time;
+  const temps = data.hourly.temperature_2m;
+  const codes = data.hourly.weathercode;
+
+  const now = new Date();
+  let count = 0;
+
+  for (let i = 0; i < times.length; i++) {
+    const dateObj = new Date(times[i]);
+
+    const dayName = dateObj.toLocaleDateString("en-US", {
+      weekday: "long"
+    });
+
+    if (dayName === selectedDay) {
+
+      // skip past hours for today
+      const todayName = now.toLocaleDateString("en-US", {
+        weekday: "long"
+      });
+
+      if (selectedDay === todayName && dateObj < now) continue;
+
+      const formatted = dateObj.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        hour12: true
+      });
+
+      const hourEl = document.getElementById("hour" + (count + 1));
+      const weatherEl = document.getElementById("weather" + (count + 1));
+      const iconEl = document.getElementById("icon" + (count + 1));
+
+      if (hourEl && weatherEl && iconEl) {
+        weatherEl.textContent = temps[i] + "°C";
+        hourEl.textContent = formatted;
+        iconEl.src = getWeatherIcon(codes[i]);
+      }
+
+      count++;
+      if (count === 7) break;
+    }
+  }
+}
+
 //handle the search helper func
 async function handleSearch() {
   const city = cityInput.value.trim();
@@ -166,34 +274,34 @@ async function handleSearch() {
   }
 
   try {
-    hideErr();
+hideErr();
+showLoading();
 
-    showLoading();
 
     const places = await searchCity(city);
     if (!places) return;
 
-    const place =
-      places.find(p => p.name.toLowerCase().includes(city.toLowerCase()));
+const place = places.find(p =>
+  p.name.toLowerCase().includes(city.toLowerCase())
+) || places[0];
+
+if (!place) {
+  showNoResultPage();
+  return;
+}
 
     const weather = await getWeather(place.latitude, place.longitude);
     if (!weather) {
       showNothingButErr();
       return;
     }
-
-    document.getElementById("city").textContent =
-      `${place.name}, ${place.country}`;
-    document.getElementById("temp").textContent =
-      `${weather.temperature_2m}°C`;
-
+    
     const icon = document.getElementById("weatherIcon");
     icon.src = getWeatherIcon(weather.weathercode);
     document.getElementById("err-container").classList.remove("hidden");
-    document.getElementById("weather-container").classList.remove("hidden");
-
 
     showWeatherPage();
+
 
   } catch (err) {
     console.log(err);
@@ -206,7 +314,6 @@ async function handleSearch() {
 async function initWeather() {
   try {
     hideErr();
-
     showLoading();
 
     const position = await getLocation().catch(() => null);
@@ -238,11 +345,16 @@ async function initWeather() {
 
     const icon = document.getElementById("weatherIcon");
     icon.src = getWeatherIcon(weather.weathercode);
-document.getElementById("err-container").classList.remove("hidden");
-document.getElementById("weather-container").classList.remove("hidden");
+
+    document.getElementById("err-container").classList.remove("hidden");
 
     showWeatherPage();
 
+currentCoords = { lat, lon };
+
+const today = new Date().toLocaleDateString("en-US", { weekday: "long" });
+handleDay(today);
+    
 
   } catch (err) {
     console.log(err);
@@ -275,6 +387,7 @@ function updateCheck(type) {
     '<img src="assets/images/icon-checkmark.svg" class="check-icon">';
 }
 
+//this will change
 function applyFilters() {
   console.log("current units: ", state);
 }
@@ -282,6 +395,7 @@ function applyFilters() {
 document.addEventListener("click", e => {
   if (!menu.contains(e.target) && !btn.contains(e.target)) {
     menu.classList.remove("open");
+   
   }
 });
 
@@ -292,6 +406,13 @@ cityInput.addEventListener("keydown", e => {
     handleSearch();
   }
 });
+
+document.addEventListener("click", e => {
+  if (!dayMenu.contains(e.target)) {
+    dayMenu.classList.remove("open");
+  }
+});
+
 
 // start
 applyText();

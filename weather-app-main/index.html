@@ -1,12 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" href="assets/images/cloud.jpg" type="image/jpg">
   <link rel="stylesheet" href="main.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Weather App</title>
 </head>
 <body>
+<div class="bg">
+<video class="bg-video" autoplay muted loop playsinline>
+  <source src="assets/videos/clouds.mp4" type="video/mp4">
+</video>
+</div>
+<div class="overlay"></div>
   <div class="big-container">
 
   <header>
@@ -57,6 +64,7 @@
 </div>
 
 
+
 <div class="err-container hidden" id="err-container">
 <h1 class="greeting">How's the sky looking today?</h1>
 
@@ -70,13 +78,14 @@
 <button class="search-btn" id="search-btn"> Search </button>
 </div>
 
-<div id="no-result" class="no-result hidden">
+
+<div class="no-result hidden" id="no-result">
 <h2>No search results found!</h2>
 </div>
 
-
-<div class="weatherContainer hidden" id="weather-container">
-
+<div class="weatherContainer hidden" id="weatherContainer">
+<div class="main-content">
+<div class="left-side">
   <div class="img-container">
   <img class="today-bg" src="assets/images/bg-today-large.svg">
 
@@ -103,15 +112,147 @@
   </div>
 </div>
 
- 
-  <div class="hourly">
+<div class="four">
+  <div class="box" >Feels Like<div id="feelslike" class="four-content">-</div>
+  </div>
+  <div class="box"> Humidity<div id="humidity" class="four-content">-</div>
+  </div>
+  <div class="box" >Wind <div id="wind" class="four-content">-</div>
+  </div>
+  <div class="box">Precipitation <div id="precipitation" class="four-content">-</div>
+  </div>
+</div>
+
+<div class="bottom">
+  <p>Daily forecast</p>
+<div class="lower-bottom">
+
+  <div class="tri"> 
+    <div id="day1"></div>
+  <img id="daily-icon1" src="">
+  <div class="range">
+    <div id="max1"></div>
+    <div id="min1"></div>
+  </div>
   </div>
 
+  <div class="tri"><div id="day2"></div>
+  <img id="daily-icon2" src="">
+  <div class="range">
+    <div id="max2"></div>
+    <div id="min2"></div>
+  </div></div>
+
+  <div class="tri"><div id="day3"></div>
+  <img id="daily-icon3" src="">
+  <div class="range">
+    <div id="max3"></div>
+    <div id="min3"></div>
+  </div></div>
+
+  <div class="tri"><div id="day4"></div>
+  <img id="daily-icon4" src="">
+  <div class="range">
+    <div id="max4"></div>
+    <div id="min4"></div>
+  </div></div>
+
+  <div class="tri"><div id="day5"></div>
+  <img id="daily-icon5" src="">
+  <div class="range">
+    <div id="max5"></div>
+    <div id="min5"></div>
+  </div></div>
+
+  <div class="tri"><div id="day6"></div>
+  <img id="daily-icon6" src="">
+  <div class="range">
+    <div id="max6"></div>
+    <div id="min6"></div>
+  </div></div>
+
+  <div class="tri"><div id="day7"></div>
+  <img id="daily-icon7" src="">
+  <div class="range">
+    <div id="max7"></div>
+    <div id="min7"></div>
+  </div></div>
+
+</div>
+ </div>
+</div>
+
+<div class="hourly">
+<div class="top">
+  Hourly forecast
+
+<select id="dayMenu" class="dayMenu">
+  <option value="Saturday">Saturday</option>
+  <option value="Sunday">Sunday</option>
+  <option value="Monday">Monday</option>
+  <option value="Tuesday">Tuesday</option>
+  <option value="Wednesday">Wednesday</option>
+  <option value="Thursday">Thursday</option>
+  <option value="Friday">Friday</option>
+</select></div>
+
+<div class="hours-container">
+
+  <div class="hours">
+  <div class="left-hour">
+  <img src="" id="icon1">
+  <div id="hour1" ></div></div>
+    <div id="weather1"></div>
+    </div>
+
+    <div class="hours">
+    <div class="left-hour">
+  <img src="" id="icon2">
+  <div id="hour2" ></div></div>
+    <div id="weather2"></div>
+</div>
+
+<div class="hours">
+    <div class="left-hour">
+  <img src="" id="icon3">
+  <div id="hour3" ></div></div>
+    <div id="weather3"></div>
+</div>
+
+<div class="hours">
+    <div class="left-hour">
+  <img src="" id="icon4">
+  <div id="hour4" ></div></div>
+    <div id="weather4"></div>
+</div>
+
+<div class="hours">
+    <div class="left-hour">
+  <img src="" id="icon5">
+  <div id="hour5" ></div></div>
+    <div id="weather5"></div>
+</div>
+
+<div class="hours">
+    <div class="left-hour">
+  <img src="" id="icon6">
+  <div id="hour6" ></div></div>
+    <div id="weather6"></div>
+</div>
+
+<div class="hours">
+    <div class="left-hour">
+  <img src="" id="icon7">
+  <div id="hour7" ></div></div>
+    <div id="weather7"></div>
+</div>
+</div>
 </div>
 
 </div>
 </div>
-
+</div>
+</div>
 
 <script src="main.js">
   
