@@ -204,9 +204,6 @@ return data.current;
 
 //handle the day column
 
-dayMenu.addEventListener("change", (e) => {
-  handleDay(e.target.value);
-});
 
 async function handleDay(selectedDay) {
   const position = await getLocation();
@@ -227,7 +224,21 @@ async function handleDay(selectedDay) {
   const now = new Date();
   let count = 0;
 
-  for (let i = 0; i < times.length; i++) {
+for (let j = 1; j <= 7; j++) {
+  const hourEl = document.getElementById("hour" + j);
+  const weatherEl = document.getElementById("weather" + j);
+  const iconEl = document.getElementById("icon" + j);
+
+  if (hourEl && weatherEl && iconEl) {
+    hourEl.textContent = "";
+    weatherEl.textContent = "";
+    iconEl.src = "";
+    hourEl.parentElement.style.display = "none"; 
+  }
+}
+
+
+  for (let i = 1; i < times.length; i++) {
     const dateObj = new Date(times[i]);
 
     const dayName = dateObj.toLocaleDateString("en-US", {
@@ -241,8 +252,10 @@ async function handleDay(selectedDay) {
         weekday: "long"
       });
 
-      if (selectedDay === todayName && dateObj < now) continue;
+const nowHour = now.getHours();
+const itemHour = dateObj.getHours();
 
+if (selectedDay === todayName && itemHour < nowHour) continue;
       const formatted = dateObj.toLocaleTimeString("en-US", {
         hour: "numeric",
         hour12: true
@@ -252,17 +265,21 @@ async function handleDay(selectedDay) {
       const weatherEl = document.getElementById("weather" + (count + 1));
       const iconEl = document.getElementById("icon" + (count + 1));
 
-      if (hourEl && weatherEl && iconEl) {
-        weatherEl.textContent = temps[i] + "°C";
-        hourEl.textContent = formatted;
-        iconEl.src = getWeatherIcon(codes[i]);
+    if (hourEl && weatherEl && iconEl) {
+  weatherEl.textContent = temps[i] + "°C";
+  hourEl.textContent = formatted;
+  iconEl.src = getWeatherIcon(codes[i]);
+
+  hourEl.parentElement.style.display = "flex";
+}
       }
+
 
       count++;
       if (count === 7) break;
     }
   }
-}
+
 
 //handle the search helper func
 async function handleSearch() {
@@ -413,6 +430,10 @@ document.addEventListener("click", e => {
   }
 });
 
+
+dayMenu.addEventListener("change", (e) => {
+  handleDay(e.target.value);
+});
 
 // start
 applyText();
