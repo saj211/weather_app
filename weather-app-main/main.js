@@ -5,12 +5,14 @@ const texts = {
   loadingCity: "Loading city..."
 };
 
+let currentcoords = null;
+
 //handle the day drp-down menu
 const dayMenu= document.querySelector("#dayMenu");
 
 //search consts
-const search = document.querySelector("#search-btn");
-const cityInput = document.querySelector("#search-txt");
+const search = document.querySelector(".search-btn");
+const cityInput = document.querySelector(".search-txt");
 const noResult = document.querySelector("#no-result");
 
 //loader consts
@@ -145,21 +147,31 @@ async function searchCity(city) {
     return null;
   }
 
-  return data.results;
+  return data.results[0];
 }
 
 async function getWeather(lat, lon) {
 const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,apparent_temperature,relative_humidity_2m,precipitation,weathercode&hourly=temperature_2m,weathercode,apparent_temperature,relative_humidity_2m,precipitation&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`;    const res = await fetch(url);
     if (!res.ok) throw new Error("API failed");
     const data = await res.json();
-    if (!data.current) return;
+    if (!data.current){
+      hideLoading();
+      showNothingButErr();
+      return;
+    }
 
   try {
+const weather = data.current;
+//for bg today
+    const city = await getCity(lat, lon);
+document.getElementById("city").textContent = city;
+    document.getElementById("temp").textContent =
+      `${weather.temperature_2m}°C`;
+    const icon = document.getElementById("weatherIcon");
+    icon.src = getWeatherIcon(weather.weathercode);
 
-//for the bg today
-    //  
 
-//for the four boex below the bg today
+//for the four box below the bg today
     document.getElementById("feelslike").textContent =
       `${data.current.apparent_temperature}°C`;
 
@@ -206,9 +218,9 @@ return data.current;
 
 
 async function handleDay(selectedDay) {
-  const position = await getLocation();
-  const lat = position.coords.latitude;
-  const lon = position.coords.longitude;
+  //currencoords defined globally and the inputs are coming from the initweather() and handlesearch().
+ const lat = currentcoords.lat;
+const lon = currentcoords.lon;
 
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode&timezone=auto`;
 
@@ -272,12 +284,12 @@ if (selectedDay === todayName && itemHour < nowHour) continue;
 
   hourEl.parentElement.style.display = "flex";
 }
-      }
 
 
       count++;
       if (count === 7) break;
     }
+  }
   }
 
 
@@ -294,31 +306,22 @@ async function handleSearch() {
 hideErr();
 showLoading();
 
-
-    const places = await searchCity(city);
-    if (!places) return;
-
-const place = places.find(p =>
-  p.name.toLowerCase().includes(city.toLowerCase())
-) || places[0];
-
+const place = await searchCity(city);
 if (!place) {
-  showNoResultPage();
+  hideLoading();
   return;
 }
+currentcoords = {
+  lat: place.latitude,
+  lon: place.longitude
+};
 
-    const weather = await getWeather(place.latitude, place.longitude);
-    if (!weather) {
-      showNothingButErr();
-      return;
-    }
-    
-    const icon = document.getElementById("weatherIcon");
-    icon.src = getWeatherIcon(weather.weathercode);
+await getWeather(place.latitude, place.longitude);
     document.getElementById("err-container").classList.remove("hidden");
-
     showWeatherPage();
 
+   const today = new Date().toLocaleDateString("en-US", { weekday: "long" });
+    handleDay(today);
 
   } catch (err) {
     console.log(err);
@@ -333,6 +336,11 @@ async function initWeather() {
     hideErr();
     showLoading();
 
+//for the loading phase
+    document.getElementById("city").textContent = texts.loadingCity;
+//init the real work
+    document.getElementById("err-container").classList.remove("hidden");
+
     const position = await getLocation().catch(() => null);
     if (!position) {
       hideLoading();
@@ -343,34 +351,15 @@ async function initWeather() {
     const lat = position.coords.latitude;
     const lon = position.coords.longitude;
 
-    document.getElementById("city").textContent = texts.loadingCity;
-
-    const [weather, city] = await Promise.all([
-      getWeather(lat, lon),
-      getCity(lat, lon)
-    ]);
-
-    if (!weather) {
-      hideLoading();
-      showNothingButErr();
-      return;
-    }
-
-    document.getElementById("city").textContent = city;
-    document.getElementById("temp").textContent =
-      `${weather.temperature_2m}°C`;
-
-    const icon = document.getElementById("weatherIcon");
-    icon.src = getWeatherIcon(weather.weathercode);
-
-    document.getElementById("err-container").classList.remove("hidden");
+    currentcoords = { lat, lon };
+    await getWeather(lat, lon);
 
     showWeatherPage();
 
-currentCoords = { lat, lon };
 
 const today = new Date().toLocaleDateString("en-US", { weekday: "long" });
 handleDay(today);
+
     
 
   } catch (err) {
@@ -420,7 +409,7 @@ document.addEventListener("click", e => {
 search.addEventListener("click", handleSearch);
 cityInput.addEventListener("keydown", e => {
   if (e.key === "Enter") {
-    handleSearch();
+    handleSearch(e);
   }
 });
 

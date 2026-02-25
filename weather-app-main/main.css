@@ -30,6 +30,7 @@ text-align: right;
 } */
 
 
+
 .big-container{
    position: relative;
   z-index: 1;
@@ -690,6 +691,9 @@ inset: 0;
    grid-column: 1fr;
   }
 
+  .no-result{
+    text-align: center;
+  }
 
 
 }
