@@ -13,26 +13,26 @@
   <source src="assets/videos/clouds.mp4" type="video/mp4">
 </video>
 </div>
+<!-- to make the vid a bit darker -->
 <div class="overlay"></div>
   <div class="big-container">
 
   <header>
     <div class="header">
-      
       <img class="logo" src="assets/images/logo.svg" alt="logo">
       <div class="rightheader">
 
-      <!-- <button class="langBtn" id="langBtn">FA / EN</button> -->
-      
+   
+      <!-- the unit menu -->
       <div class="unit-dropdown">
         <button id="unitbtn" class="unit-btn">
         <img src="assets/images/icon-units.svg" alt="">
         Units
         <img src="assets/images/icon-dropdown.svg" alt="">
         </button>
+        
 <div class="menu" id="unitmenu">
   <div class="group">
-  <div class="title"></div>
     <div class="item" data-value="metric">metric <span class="check"></span></div>
     <div class="item" data-value="imperial">imperial <span class="check"></span></div>
   </div>
@@ -42,13 +42,13 @@
   </div>
 </header>
 
-
+<!-- the failed api err page -->
 <div class="err hidden" id="err">
   <img src="assets/images/icon-error.svg" >
   
 <p class="big-font">Something went wrong</p>
 <p class="small-font">We couldn't connect to the server (API error). Please try again in a few moments.</p>
-<button id="retryBtn"  onclick="showNothingButErr()"><img src="assets/images/icon-retry.svg">
+<button id="retryBtn"><img src="assets/images/icon-retry.svg">
   Retry
 </button>
 </div>
@@ -56,9 +56,10 @@
 
 
 <div class="err-container hidden" id="err-container">
+  <!-- greeting -->
 <h1 class="greeting">How's the sky looking today?</h1>
 
-
+<!-- the search bar -->
 <div class="container">
 <div class="searchbar">
 
@@ -68,22 +69,20 @@
 <button class="search-btn" id="search-btn"> Search </button>
 </div>
 
-
+<!-- no result found or the search attempt -->
 <div class="no-result hidden" id="no-result">
 <h2>No search results found!</h2>
 </div>
-
+<!-- the main weather container, including the main body of the page -->
 <div class="weatherContainer hidden" id="weatherContainer">
 
   <div class="main-content">
-
+<!-- only the left side of the page, ive excluded the hourly forecast -->
 <div class="left-side">
-
-
   <div class="img-container">
   <img class="today-bg-desktop" src="assets/images/bg-today-large.svg">
 <img src="assets/images/bg-today-small.svg" class="today-bg-mobile">
-  <!-- LOADER -->
+  <!-- loader for the bg-today  -->
   <div class="load-wrapp hidden" id="loading-box">
     <div class="load-2">
       <div class="line"></div>
@@ -92,7 +91,7 @@
     </div>
   </div>
 
-  <!-- NOTE -->
+  <!-- bg-today content -->
   <div class="note hidden">
     <div class="left">
       <h2 id="city"></h2>
@@ -105,7 +104,7 @@
     </div>
   </div>
 </div>
-
+<!-- the four boxes below the bg-today -->
 <div class="four">
   <div class="box" >Feels Like<div id="feelslike" class="four-content">-</div>
   </div>
@@ -116,7 +115,7 @@
   <div class="box">Precipitation <div id="precipitation" class="four-content">-</div>
   </div>
 </div>
-
+<!-- the 7 boxes at the end of the page for the daily forecast -->
 <div class="bottom">
   <p>Daily forecast</p>
 <div class="lower-bottom">
@@ -175,11 +174,11 @@
 </div>
  </div>
 </div>
-
+<!-- the hourly column -->
 <div class="hourly">
 <div class="top">
   Hourly forecast
-
+<!-- the day menu -->
 <select id="dayMenu" class="dayMenu">
   <option value="Saturday">Saturday</option>
   <option value="Sunday">Sunday</option>
@@ -190,8 +189,8 @@
   <option value="Friday">Friday</option>
 </select></div>
 
+<!-- 7 hourly containers  -->
 <div class="hours-container">
-
   <div class="hours">
   <div class="left-hour">
   <img src="" id="icon1">
