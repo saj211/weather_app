@@ -31,20 +31,10 @@
         <img src="assets/images/icon-dropdown.svg" alt="">
         </button>
 <div class="menu" id="unitmenu">
-<div class="group">
-  <div class="title">temperature</div>
-    <div class="item" data-type="temp" data-value="c">Celsuis <span class="check"></span></div>
-    <div class="item" data-type="temp" data-value="f">Fahrenheit <span class="check"></span></div>
-  </div>
   <div class="group">
-  <div class="title">Wind Speed</div>
-    <div class="item" data-type="wind" data-value="kmh">kmh <span class="check"></span></div>
-    <div class="item" data-type="wind" data-value="mph">mph <span class="check"></span></div>
-  </div>
-  <div class="group">
-  <div class="title">Precipitation</div>
-    <div class="item" data-type="rain" data-value="mm">Millimeters <span class="check"></span></div>
-    <div class="item" data-type="rain" data-value="in">Inches <span class="check"></span></div>
+  <div class="title"></div>
+    <div class="item" data-value="metric">metric <span class="check"></span></div>
+    <div class="item" data-value="imperial">imperial <span class="check"></span></div>
   </div>
 </div>
 
@@ -58,7 +48,7 @@
   
 <p class="big-font">Something went wrong</p>
 <p class="small-font">We couldn't connect to the server (API error). Please try again in a few moments.</p>
-<button><img src="assets/images/icon-retry.svg">
+<button id="retryBtn"  onclick="showNothingButErr()"><img src="assets/images/icon-retry.svg">
   Retry
 </button>
 </div>

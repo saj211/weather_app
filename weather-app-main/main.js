@@ -4,7 +4,9 @@ const texts = {
   search: "Search",
   loadingCity: "Loading city..."
 };
-
+//the retry btn on the err page
+const retryBtn = document.getElementById("retryBtn");
+//for the lat and lon modification
 let currentcoords = null;
 
 //handle the day drp-down menu
@@ -22,10 +24,9 @@ const note = document.querySelector(".note");
 //unit menu consts
 const btn = document.getElementById("unitbtn");
 const menu = document.getElementById("unitmenu");
+
 const state = {
-  temp: "c",
-  wind: "kmh",
-  rain: "mm"
+unit : "metric"
 };
 
 // letter animation
@@ -150,10 +151,31 @@ async function searchCity(city) {
   return data.results[0];
 }
 
+
+//get weather, windspeed, etc
 async function getWeather(lat, lon) {
-const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,apparent_temperature,relative_humidity_2m,precipitation,weathercode&hourly=temperature_2m,weathercode,apparent_temperature,relative_humidity_2m,precipitation&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`;    const res = await fetch(url);
-    if (!res.ok) throw new Error("API failed");
-    const data = await res.json();
+
+let url = `https://api.open-meteo.com/v1/forecast?
+latitude=${lat}
+&longitude=${lon}
+&current=temperature_2m,wind_speed_10m,apparent_temperature,relative_humidity_2m,precipitation,weathercode
+&hourly=temperature_2m,weathercode,apparent_temperature,relative_humidity_2m,precipitation
+&daily=weathercode,temperature_2m_max,temperature_2m_min
+&timezone=auto
+&forecast_days=7`;
+
+
+if (state.unit === "imperial") {
+  url += "&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch";
+}else {
+    url += "&temperature_unit=celsius&windspeed_unit=kmh&precipitation_unit=mm";
+  }//to ensure the browser mentions them alright
+const res = await fetch(url);
+if (!res.ok) {
+  showNothingButErr();
+  return;
+}  
+  const data = await res.json();
     if (!data.current){
       hideLoading();
       showNothingButErr();
@@ -162,27 +184,27 @@ const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${
 
   try {
 const weather = data.current;
+
 //for bg today
     const city = await getCity(lat, lon);
 document.getElementById("city").textContent = city;
     document.getElementById("temp").textContent =
-      `${weather.temperature_2m}°C`;
+     `${weather.temperature_2m}${state.unit === "imperial" ? "°F" : "°C"}` ;
     const icon = document.getElementById("weatherIcon");
     icon.src = getWeatherIcon(weather.weathercode);
 
-
 //for the four box below the bg today
     document.getElementById("feelslike").textContent =
-      `${data.current.apparent_temperature}°C`;
+      `${data.current.apparent_temperature}${state.unit === "imperial" ? "°F" : "°C"}`;
 
     document.getElementById("humidity").textContent =
       `${data.current.relative_humidity_2m}%`;
 
     document.getElementById("wind").textContent =
-      `${data.current.wind_speed_10m} km/h`;
+      `${data.current.wind_speed_10m} ${state.unit === "imperial" ? "mph" : "km/h"}`;
 
     document.getElementById("precipitation").textContent =
-      `${data.current.precipitation} mm`;
+      `${data.current.precipitation} ${state.unit === "imperial" ? "inch" : "mm"}`;
 
 
 //for the daily forecast
@@ -214,9 +236,8 @@ return data.current;
   }
 }
 
+
 //handle the day column
-
-
 async function handleDay(selectedDay) {
   //currencoords defined globally and the inputs are coming from the initweather() and handlesearch().
  const lat = currentcoords.lat;
@@ -278,19 +299,55 @@ if (selectedDay === todayName && itemHour < nowHour) continue;
       const iconEl = document.getElementById("icon" + (count + 1));
 
     if (hourEl && weatherEl && iconEl) {
-  weatherEl.textContent = temps[i] + "°C";
+       const unitSymbol = state.unit === "imperial" ? "°F" : "°C";
+  weatherEl.textContent = temps[i] + unitSymbol;
   hourEl.textContent = formatted;
   iconEl.src = getWeatherIcon(codes[i]);
 
   hourEl.parentElement.style.display = "flex";
 }
-
-
       count++;
       if (count === 7) break;
     }
   }
   }
+
+//for the unit selection
+function unitItems(e) {
+  const item = e.currentTarget;
+  const value = item.dataset.value;
+
+  state.unit = value;
+  localStorage.setItem("unit", value);
+  updateCheck();
+
+  if (currentcoords) {
+    // re-fetch weather with the new unit
+    getWeather(currentcoords.lat, currentcoords.lon).then(() => {
+      const today = new Date().toLocaleDateString("en-US", { weekday: "long" });
+      handleDay(today); // redraw hourly forecast immediately
+    });
+  }
+}
+
+// update the checkmarks
+function updateCheck() {
+  // clear all checkmarks first
+  document.querySelectorAll(`#unitmenu .item .check`).forEach(span => {
+    span.innerHTML = "";
+  });
+
+  // set checkmark for the selected unit
+  const selectedSpan = document.querySelector(
+    `#unitmenu .item[data-value="${state.unit}"] .check`
+  );
+
+  if (selectedSpan) {
+    selectedSpan.innerHTML =
+      '<img src="assets/images/icon-checkmark.svg" class="check-icon">';
+  }
+}
+
 
 
 //handle the search helper func
@@ -330,6 +387,18 @@ await getWeather(place.latitude, place.longitude);
   }
 }
 
+//handle the retry btn
+async function handleRetry() {
+  try {
+    hideErr();
+    showLoading();
+    await initWeather(); // ← await ensures errors are caught
+  } catch(err) {
+    hideLoading();
+    showNothingButErr();
+  }
+}
+
 // init main func
 async function initWeather() {
   try {
@@ -350,17 +419,13 @@ async function initWeather() {
 
     const lat = position.coords.latitude;
     const lon = position.coords.longitude;
-
     currentcoords = { lat, lon };
     await getWeather(lat, lon);
 
     showWeatherPage();
 
-
 const today = new Date().toLocaleDateString("en-US", { weekday: "long" });
 handleDay(today);
-
-    
 
   } catch (err) {
     console.log(err);
@@ -373,30 +438,7 @@ handleDay(today);
 btn.onclick = () => menu.classList.toggle("open");
 
 document.querySelectorAll(".item").forEach(item => {
-  item.addEventListener("click", () => {
-    const type = item.dataset.type;
-    const value = item.dataset.value;
-
-    state[type] = value;
-    updateCheck(type);
-    applyFilters();
-  });
-});
-
-function updateCheck(type) {
-  document.querySelectorAll(`.item[data-type="${type}"]`)
-    .forEach(i => i.querySelector(".check").innerHTML = "");
-
-  document.querySelector(
-    `.item[data-type="${type}"][data-value="${state[type]}"] .check`
-  ).innerHTML =
-    '<img src="assets/images/icon-checkmark.svg" class="check-icon">';
-}
-
-//this will change
-function applyFilters() {
-  console.log("current units: ", state);
-}
+item.addEventListener("click",unitItems)});
 
 document.addEventListener("click", e => {
   if (!menu.contains(e.target) && !btn.contains(e.target)) {
@@ -423,6 +465,13 @@ document.addEventListener("click", e => {
 dayMenu.addEventListener("change", (e) => {
   handleDay(e.target.value);
 });
+
+retryBtn.addEventListener("click", handleRetry);
+
+
+
+state.unit = localStorage.getItem("unit") || "metric";
+updateCheck();
 
 // start
 applyText();
